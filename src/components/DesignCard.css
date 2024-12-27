@@ -1,0 +1,32 @@
+/* FILEPATH: /Users/jiawenwang/WebstormProjects/deepvision/src/components/DesignCard.css */
+.design-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 75%; /* 4:3 宽高比 */
+    overflow: hidden;
+}
+
+.image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.image-container img:hover {
+    transform: scale(1.05);
+}
+
+.design-card h3 {
+    margin-top: 10px;
+    font-size: 1rem;
+}
