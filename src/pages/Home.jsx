@@ -6,7 +6,7 @@ import { Link as RouterLink } from 'react-router-dom';
 const featuredDesigns = [
     { id: 1, title: 'Modern Living Room', image: '/images/living-room.jpg' },
     { id: 2, title: 'Cozy Bedroom', image: '/images/bedroom.jpg' },
-    { id: 3, title: 'Minimalist Kitchen', image: '/images/kitchen.jpg' },
+    { id: 3, title: 'Minimalist Kitchen', image: '/images/kitchen8.jpg' },
 ];
 
 function Home() {

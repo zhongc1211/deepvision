@@ -1,26 +1,34 @@
 // FILEPATH: /Users/jiawenwang/WebstormProjects/deepvision/src/pages/Gallery.jsx
 import React, { useState, useEffect } from 'react';
-import { Container, Typography } from '@mui/material';
+import { Container, Typography, Button, Box, useMediaQuery, Select, MenuItem } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import Lightbox from 'yet-another-react-lightbox';
 import "yet-another-react-lightbox/styles.css";
+import { motion, AnimatePresence } from 'framer-motion';
 import DesignCard from '../components/DesignCard';
 import './Gallery.css';
 
 function Gallery() {
     const [designs, setDesigns] = useState([]);
+    const [filteredDesigns, setFilteredDesigns] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const [photoIndex, setPhotoIndex] = useState(0);
+    const [activeCategory, setActiveCategory] = useState('All');
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     useEffect(() => {
         const imageFiles = [
-            'balcony.jpg', 'bedroom2.jpg', 'kitchen3.jpg', 'kitchen7.jpg', 'living-room4.jpg', 'living-room8.jpg',
-            'bathroom.jpg', 'bedroom3.jpg', 'kitchen4.jpg', 'living-room.jpg', 'living-room5.jpg', 'office.jpg',
-            'bathroom2.jpg', 'kitchen.jpg', 'kitchen5.jpg', 'living-room2.jpg', 'living-room6.jpg', 'office2.jpg',
-            'bedroom.jpg', 'kitchen2.jpg', 'kitchen6.jpg', 'living-room3.jpg', 'living-room7.jpg'
+            'balcony.jpg', 'bedroom3.jpg', 'kitchen13.jpg', 'kitchen5.jpg', 'living-room.jpg', 'living-room6.jpg',
+            'bathroom.jpg', 'bedroom4.jpg', 'kitchen14.jpg', 'kitchen6.jpg', 'living-room2.jpg', 'living-room7.jpg',
+            'bathroom2.jpg', 'kitchen10.jpg', 'kitchen2.jpg', 'kitchen7.jpg', 'living-room3.jpg', 'living-room8.jpg',
+            'bedroom.jpg', 'kitchen11.jpg', 'kitchen3.jpg', 'kitchen8.jpg', 'living-room4.jpg', 'office.jpg',
+            'bedroom2.jpg', 'kitchen12.jpg', 'kitchen4.jpg', 'kitchen9.jpg', 'living-room5.jpg', 'office2.jpg'
         ];
 
         const designsData = imageFiles.map((fileName, index) => {
-            const name = fileName.replace(/\d+\.jpg$/, '').replace(/-/g, ' ').trim();
+            const name = fileName.replace(/\d*\.jpg$/, '').replace(/-/g, ' ').trim();
             const capitalizedName = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
             return {
                 id: index + 1,
@@ -31,33 +39,83 @@ function Gallery() {
         });
 
         setDesigns(designsData);
+        setFilteredDesigns(designsData);
     }, []);
 
     const handleImageClick = (clickedDesign) => {
-        const index = designs.findIndex(design => design.id === clickedDesign.id);
+        const index = filteredDesigns.findIndex(design => design.id === clickedDesign.id);
         setPhotoIndex(index);
         setIsOpen(true);
     };
+
+    const handleCategoryFilter = (category) => {
+        setActiveCategory(category);
+        if (category === 'All') {
+            setFilteredDesigns(designs);
+        } else {
+            const filtered = designs.filter(design => design.category.toLowerCase() === category.toLowerCase());
+            setFilteredDesigns(filtered);
+        }
+    };
+
+    const categories = ['All', ...new Set(designs.map(design => design.category))];
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Typography variant="h2" component="h1" gutterBottom align="center">
                 Our Design Gallery
             </Typography>
-            <div className="gallery-grid">
-                {designs.map((design) => (
-                    <DesignCard
-                        key={design.id}
-                        design={design}
-                        onClick={handleImageClick}
-                    />
-                ))}
-            </div>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+                {isMobile ? (
+                    <Select
+                        value={activeCategory}
+                        onChange={(e) => handleCategoryFilter(e.target.value)}
+                        sx={{ width: '100%', maxWidth: 300 }}
+                    >
+                        {categories.map((category) => (
+                            <MenuItem key={category} value={category}>
+                                {category}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                ) : (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                        {categories.map((category) => (
+                            <Button
+                                key={category}
+                                variant={activeCategory === category ? "contained" : "outlined"}
+                                onClick={() => handleCategoryFilter(category)}
+                            >
+                                {category}
+                            </Button>
+                        ))}
+                    </Box>
+                )}
+            </Box>
+            <motion.div layout className="gallery-grid">
+                <AnimatePresence>
+                    {filteredDesigns.map((design) => (
+                        <motion.div
+                            key={design.id}
+                            layout
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <DesignCard
+                                design={design}
+                                onClick={handleImageClick}
+                            />
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </motion.div>
 
             <Lightbox
                 open={isOpen}
                 close={() => setIsOpen(false)}
-                slides={designs}
+                slides={filteredDesigns}
                 index={photoIndex}
                 render={{
                     slide: ({ slide }) => (
